@@ -6,7 +6,7 @@
   "scripts": {
     "start:node": "",
     "start:neuron": "",
-    "test": "jest"
+    "test": "jest src/tests/*.test.ts"
   },
   "dependencies": {
     "@ckb-lumos/lumos": "^0.20.0",
