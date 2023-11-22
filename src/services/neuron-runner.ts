@@ -14,7 +14,8 @@ let syncResult: boolean
 export const getNeuronPath = () => {
     switch (platform()) {
         case 'win':
-            throw new Error("not support ")
+            //C:\Users\linguopeng_112963420\AppData\Roaming\Neuron
+            return path.join(os.homedir(),...['AppData','Roaming','Neuron'])
         case 'mac':
             //todo check intel
             return path.join(os.homedir(), ...["Library", "Application Support", "Neuron"])
