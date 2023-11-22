@@ -43,7 +43,7 @@ jobs:
         run: |
           npm i
           bash prepare.sh linux
-          npm run test
+          xvfb-run --auto-servernum npm run test
 
       - name: tar result
         if: always()

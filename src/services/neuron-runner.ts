@@ -11,13 +11,6 @@ let neuron: ChildProcess | null = null
 
 let syncResult: boolean
 
-/**
- *        - macOS: `~/Library/Application Support/MyApp-nodejs`
- *        - Windows: `%LOCALAPPDATA%\MyApp-nodejs\Data` (for example, `C:\Users\USERNAME\AppData\Local\MyApp-nodejs\Data`)
- *        - Linux: `~/.local/share/MyApp-nodejs` (or `$XDG_DATA_HOME/MyApp-nodejs`)
- *
- **/
-
 export const getNeuronPath = () => {
     switch (platform()) {
         case 'win':
@@ -27,7 +20,7 @@ export const getNeuronPath = () => {
             //todo check intel
             return path.join(os.homedir(), ...["Library", "Application Support", "Neuron"])
         case 'linux':
-            return path.join(os.homedir(),...['.local','share','Neuron'])
+            return path.join(os.homedir(),...['.config','Neuron'])
         default:
             throw new Error("not support ")
     }
