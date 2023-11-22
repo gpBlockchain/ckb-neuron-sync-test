@@ -39,7 +39,7 @@ jobs:
           npm run test
           tar -zcvf tmp.tar.gz tmp
       - name: Publish reports
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: jfoa-build-reports-${{ runner.os }}
