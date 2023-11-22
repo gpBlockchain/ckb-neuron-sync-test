@@ -14,7 +14,7 @@ jobs:
           - 18.12.0
         os:
           - macos-latest
-#          - ubuntu-20.04
+          - ubuntu-20.04
 #          - windows-latest
 
     runs-on: ${{ matrix.os }}
@@ -37,10 +37,23 @@ jobs:
           npm i
           bash prepare.sh mac
           npm run test
-          tar -zcvf tmp.tar.gz tmp
+
+      - name: ubuntu run
+        if: matrix.os == 'ubuntu-20.04'
+        run: |
+          npm i
+          bash prepare.sh linux
+          npm run test
+
+      - name: tar result
+        if: always()
+        run: |
+          tar -zcvf tmp.${{ matrix.os  }}.tar.gz tmp
+          rm -rf tmp
+
       - name: Publish reports
         if: always()
         uses: actions/upload-artifact@v2
         with:
           name: jfoa-build-reports-${{ runner.os }}
-          path: tmp.tar.gz
+          path: tmp.${{ matrix.os  }}.tar.gz
