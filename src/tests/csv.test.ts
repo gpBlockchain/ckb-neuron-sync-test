@@ -1,6 +1,4 @@
 import {exportToCSVFiles} from "../services/sqlite3-server";
-import {startCkbLightNodeWithConfig} from "../services/light-runner";
-import {startCkbMiner, startCkbNodeWithData} from "../services/ckb-runner";
 
 describe('csv', function () {
 

@@ -1,5 +1,6 @@
+tar -zxvf source.tar.gz
 echo "todo download ckb source/bin"
-#bash script/download-ckb.sh $1
+bash script/download-ckb.sh $1
 echo "todo download neuron"
 git clone https://github.com/nervosnetwork/neuron.git
 cd neuron
