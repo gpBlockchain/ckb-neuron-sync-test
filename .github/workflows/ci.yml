@@ -15,7 +15,7 @@ jobs:
         os:
           - macos-latest
           - ubuntu-20.04
-#          - windows-latest
+          - windows-2019
 
     runs-on: ${{ matrix.os }}
 
@@ -24,6 +24,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Add msbuild to PATH
+        if: matrix.os == 'windows-2019'
+        uses: microsoft/setup-msbuild@v1.3.1
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
+
 
       - name: Install libudev
         if: matrix.os == 'ubuntu-20.04'
@@ -36,6 +43,13 @@ jobs:
         run: | 
           npm i
           bash prepare.sh mac
+          npm run test
+
+      - name:  Windows run
+        if: matrix.os == 'windows-2019'
+        run: |
+          npm i
+          bash prepare.sh win
           npm run test
 
       - name: ubuntu run
