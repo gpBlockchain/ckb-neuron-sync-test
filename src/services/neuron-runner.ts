@@ -15,8 +15,9 @@ let syncResult: boolean
  *        - macOS: `~/Library/Application Support/MyApp-nodejs`
  *        - Windows: `%LOCALAPPDATA%\MyApp-nodejs\Data` (for example, `C:\Users\USERNAME\AppData\Local\MyApp-nodejs\Data`)
  *        - Linux: `~/.local/share/MyApp-nodejs` (or `$XDG_DATA_HOME/MyApp-nodejs`)
- *        */
- */
+ *
+ **/
+
 export const getNeuronPath = () => {
     switch (platform()) {
         case 'win':
