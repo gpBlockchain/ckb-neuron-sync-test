@@ -14,10 +14,13 @@ let syncResult: boolean
 export const getNeuronPath = () => {
     switch (platform()) {
         case 'win':
-            throw new Error("not support ")
+            //C:\Users\linguopeng_112963420\AppData\Roaming\Neuron
+            return path.join(os.homedir(),...['AppData','Roaming','Neuron'])
         case 'mac':
             //todo check intel
             return path.join(os.homedir(), ...["Library", "Application Support", "Neuron"])
+        case 'linux':
+            return path.join(os.homedir(),...['.config','Neuron'])
         default:
             throw new Error("not support ")
     }
@@ -67,7 +70,7 @@ export const startNeuronWithConfig = async (option: {
         cwd: option.neuronCodePath,
         stdio: ['ignore', 'pipe', 'pipe'],
         // detached: true,
-        // shell: false,
+        shell: true,
     })
     let log = fs.createWriteStream(option.logPath)
     neuron.stderr && neuron.stderr.on('data', data => {
@@ -154,9 +157,55 @@ export function asyncSleep(ms: number): Promise<void> {
 async function findAndKillProcessOnPort(portNumber: number): Promise<void> {
     switch (platform()) {
         case 'win':
-            // todo support
-            throw new Error("not support ")
+            await killWindowsProcessByPort(portNumber)
         default:
             await exec(`kill $(lsof -t -i:${portNumber})`)
     }
+}
+
+/***
+ * windows
+ * @param port
+ */
+function killWindowsProcessByPort(port: number): void {
+    // 使用 netstat 查找占用指定端口的进程
+    const cmd = `netstat -ano | findstr :${port}`;
+    exec(cmd, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error occurred: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.error(`Command execution error: ${stderr}`);
+            return;
+        }
+
+        const lines = stdout.split('\n');
+        const processInfo = lines[0].trim().split(/\s+/);
+        const pid = processInfo[processInfo.length - 1];
+
+        if (pid) {
+            console.log(`Process using port ${port} found. PID: ${pid}`);
+            // 终止找到的进程
+            killWindowsProcessByID(pid);
+        } else {
+            console.log(`No process found using port ${port}`);
+        }
+    });
+}
+
+function killWindowsProcessByID(pid: string): void {
+    // 使用 taskkill 终止指定 PID 的进程
+    const cmd = `taskkill /F /PID ${pid}`;
+    exec(cmd, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error occurred: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.error(`Command execution error: ${stderr}`);
+            return;
+        }
+        console.log(`Process with PID ${pid} terminated.`);
+    });
 }
