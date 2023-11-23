@@ -41,7 +41,7 @@ describe('demo', function () {
         })
     })
 
-    it.skip("full node sync  wallet 1", async () => {
+    it("full node sync  wallet 1", async () => {
 
         await startNeuronWithConfig({
             cleanCells: true,
