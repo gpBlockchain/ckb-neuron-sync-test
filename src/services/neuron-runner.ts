@@ -1,7 +1,7 @@
 import * as os from "os";
-import {platform, retry, timeout} from "../utils/utils";
+import {platform, retry, rm} from "../utils/utils";
 import * as path from "path";
-import {cpSync, rmdirSync} from "node:fs";
+import {cpSync} from "node:fs";
 import {ChildProcess, exec,spawn} from "child_process";
 import * as  fs from "fs";
 import {DEV_TIP_NUMBER} from "../config/constant";
@@ -139,7 +139,7 @@ function changeWalletByName(selectWallet: string) {
 }
 
 export const cleanNeuronSyncCells = () => {
-    rmdirSync(path.join(getNeuronPath(), ...["test", "cells"]))
+    rm(path.join(getNeuronPath(), ...["test", "cells"]))
 }
 
 

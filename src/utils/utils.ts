@@ -1,4 +1,5 @@
 import * as process from 'process'
+import {rmSync} from "node:fs";
 
 export const platform = (): string => {
     switch (process.platform) {
@@ -107,4 +108,11 @@ export function retry<T>(
     });
 
     return timeout(retryPromise, { milliseconds: timeoutMs });
+}
+export function rm(path:string){
+    try {
+        rmSync(path, {force: true, recursive: true, maxRetries: 10})
+    }catch (e){
+        console.log(e)
+    }
 }

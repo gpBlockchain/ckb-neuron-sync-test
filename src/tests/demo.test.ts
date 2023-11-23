@@ -1,6 +1,7 @@
 import {cleanCkbNode, startCkbMiner, startCkbNodeWithData, stopCkbNode} from "../services/ckb-runner";
 import {cleanLightCkbNode, startCkbLightNodeWithConfig, stopLightCkbNode} from "../services/light-runner";
 import {
+    asyncSleep,
     backupNeuronCells,
     startNeuronWithConfig, stopNeuron, waitNeuronSyncSuccess,
 } from "../services/neuron-runner";
@@ -11,8 +12,9 @@ describe('demo', function () {
 
     afterEach(async () => {
         await stopCkbNode()
-        await cleanCkbNode("tmp/ckb")
         await stopLightCkbNode()
+        await asyncSleep(5*1000)
+        await cleanCkbNode("tmp/ckb")
         await cleanLightCkbNode("tmp/ckb-light-client")
         await stopNeuron()
         console.log("clean data successful")
@@ -51,7 +53,6 @@ describe('demo', function () {
         console.log("wait sync ")
         // let beginTime = now()
         await waitNeuronSyncSuccess(30 * 60)
-        // await asyncSleep(1000*10)
         // let endTime = now()
         // console.log(`sync succ:${endTime - beginTime}`)
         console.log("back log")

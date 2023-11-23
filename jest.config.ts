@@ -20,7 +20,7 @@ const config: JestConfigWithTsJest = {
     //         "pageTitle": "Test Report"
     //     }]
     // ],
-    testTimeout:1000000,
+    testTimeout:1000*60*40,
 };
 
 export default config;
