@@ -70,7 +70,7 @@ export const startNeuronWithConfig = async (option: {
         cwd: option.neuronCodePath,
         stdio: ['ignore', 'pipe', 'pipe'],
         // detached: true,
-        // shell: false,
+        shell: true,
     })
     let log = fs.createWriteStream(option.logPath)
     neuron.stderr && neuron.stderr.on('data', data => {
