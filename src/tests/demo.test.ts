@@ -4,6 +4,8 @@ import {
     backupNeuronCells,
     startNeuronWithConfig, stopNeuron, waitNeuronSyncSuccess,
 } from "../services/neuron-runner";
+import {compareDatabases} from "../services/sqlite3-server";
+import {FULLNODE_DEFAULT_DBPATH, FULLNODE_INIT_DBPATH, LIGTHNODE_INIT_DBPATH, LIGTHNODE_DEFAULT_DBPATH} from "../config/constant";
 
 
 
@@ -56,6 +58,22 @@ describe('demo', function () {
         // console.log(`sync succ:${endTime - beginTime}`)
         console.log("back log")
         await backupNeuronCells("tmp/fullNode/wallet1")
+        try {
+            const result = await compareDatabases(FULLNODE_DEFAULT_DBPATH , FULLNODE_INIT_DBPATH);
+            console.log(result);
+
+            // 进行断言
+            if (result.includes('\x1b[31mTRUE\x1b[39m')) {
+                // 包含红色标记，断言失败
+                console.error('Assertion failed: Databases are different.');
+            } else {
+                // 不包含红色标记，断言成功
+                console.log('Assertion passed: Databases are the same.');
+            }
+        } catch (error) {
+            // 处理错误
+            console.error('Error:', error);
+        }
     })
 
     it("light node sync  wallet 1", async () => {
@@ -75,6 +93,22 @@ describe('demo', function () {
         // await asyncSleep(1000*10)
         console.log("back log ")
         await backupNeuronCells("tmp/lightNode/wallet1")
+        try {
+            const result = await compareDatabases(LIGTHNODE_INIT_DBPATH , LIGTHNODE_DEFAULT_DBPATH);
+            console.log(result);
+
+            // 进行断言
+            if (result.includes('\x1b[31mTRUE\x1b[39m')) {
+                // 包含红色标记，断言失败
+                console.error('Assertion failed: Databases are different.');
+            } else {
+                // 不包含红色标记，断言成功
+                console.log('Assertion passed: Databases are the same.');
+            }
+        } catch (error) {
+            // 处理错误
+            console.error('Error:', error);
+        }
     })
 
 
