@@ -13,8 +13,8 @@ jobs:
         node:
           - 18.12.0
         os:
-#          - macos-latest
-#          - ubuntu-20.04
+          - macos-latest
+          - ubuntu-20.04
           - windows-latest
 
     runs-on: ${{ matrix.os }}
@@ -24,12 +24,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-#
-#      - name: Add msbuild to PATH
-#        if: matrix.os == 'windows-2019'
-#        uses: microsoft/setup-msbuild@v1.3.1
-#        env:
-#          ACTIONS_ALLOW_UNSECURE_COMMANDS: "true"
 
 
       - name: Install libudev
@@ -44,10 +38,6 @@ jobs:
           npm i
           bash prepare.sh mac
           npm run test
-
-      - uses: actions/checkout@v2
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
 
       - name:  Windows run
         if: matrix.os == 'windows-latest'
