@@ -1,5 +1,6 @@
 # ckb-neuron-sync-test
 
+notice:will remove your neuron test data
 
 ### prepare 
 - linux
