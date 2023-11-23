@@ -1,7 +1,7 @@
 import {BI, RPC} from '@ckb-lumos/lumos';
 
 import {ChildProcess, StdioNull, StdioPipe, spawn} from 'child_process'
-import {mkdirSync, rmSync, cpSync} from "node:fs";
+import {mkdirSync,rmdirSync, cpSync} from "node:fs";
 import {platform, retry} from "../utils/utils";
 
 export const CKB_HOST = `127.0.0.1`;
@@ -104,6 +104,6 @@ export const stopCkbNode = async (ckb_port: number = 8114) => {
 
 export const cleanCkbNode = async (decPath: string) => {
     console.log("clean ckb node env:",decPath)
-    rmSync(decPath, {recursive: true, force: true})
+    rmdirSync(decPath)
 
 }
