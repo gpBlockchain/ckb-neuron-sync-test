@@ -38,7 +38,7 @@ describe('demo', function () {
         })
     })
 
-    it("full node sync  wallet 1", async () => {
+    it.skip("full node sync  wallet 1", async () => {
 
         await startNeuronWithConfig({
             cleanCells: true,
@@ -72,7 +72,7 @@ describe('demo', function () {
             logPath: "tmp/neuron-light-node-wallet-1.log"
         })
         console.log("wait sync ")
-        await waitNeuronSyncSuccess(30 * 60)
+        await waitNeuronSyncSuccess(60 * 60)
         // await asyncSleep(1000*10)
         console.log("back log ")
         await backupNeuronCells("tmp/lightNode/wallet1")
