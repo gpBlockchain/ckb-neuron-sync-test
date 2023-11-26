@@ -37,6 +37,7 @@ jobs:
         run: | 
           npm i
           bash prepare.sh mac
+          bash run_neuron_ui.sh
           npm run test
 
       - name:  Windows run
@@ -44,6 +45,7 @@ jobs:
         run: |
           npm i
           bash prepare.sh win
+          bash run_neuron_ui.sh
           npm run test
 
       - name: ubuntu run
@@ -51,6 +53,7 @@ jobs:
         run: |
           npm i
           bash prepare.sh linux
+          xvfb-run --auto-servernum bash run_neuron_ui.sh
           xvfb-run --auto-servernum npm run test
 
       - name: tar result
