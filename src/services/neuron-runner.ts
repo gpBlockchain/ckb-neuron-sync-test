@@ -50,7 +50,7 @@ export const startNeuronWithConfig = async (option: {
     cpSync(option.envPath, path.join(option.neuronCodePath, ...["packages", "neuron-wallet", ".env"]))
 
     // cp network file
-    let decPath = path.join(getNeuronPath(), ...["test", "networks", "index.json"])
+    let decPath = path.join(getNeuronPath(), ...["dev", "networks", "index.json"])
     cpSync(option.network.indexJsonPath, decPath)
 
     if (option.network.selectNetwork !== undefined) {
@@ -58,7 +58,7 @@ export const startNeuronWithConfig = async (option: {
         changeNetworkByName(option.network.selectNetwork)
     }
     // cp wallet file
-    cpSync(option.wallets.walletsPath, path.join(getNeuronPath(), ...["test", "wallets"]), {recursive: true})
+    cpSync(option.wallets.walletsPath, path.join(getNeuronPath(), ...["dev", "wallets"]), {recursive: true})
 
     if (option.wallets.selectWallet !== undefined) {
         changeWalletByName(option.wallets.selectWallet)
@@ -139,12 +139,12 @@ function changeWalletByName(selectWallet: string) {
 }
 
 export const cleanNeuronSyncCells = () => {
-    rm(path.join(getNeuronPath(), ...["test", "cells"]))
+    rm(path.join(getNeuronPath(), ...["dev", "cells"]))
 }
 
 
 export const backupNeuronCells = (decPath: string) => {
-    cpSync(path.join(getNeuronPath(), ...["test", "cells"]), decPath, {recursive: true})
+    cpSync(path.join(getNeuronPath(), ...["dev", "cells"]), decPath, {recursive: true})
 }
 
 export function asyncSleep(ms: number): Promise<void> {

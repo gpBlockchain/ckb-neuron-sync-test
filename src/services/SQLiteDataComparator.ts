@@ -108,9 +108,11 @@ export class SQLiteDataComparator {
                         this.compareResult[tableName] = false;
                         this.compareResult.result = false;
                         resolve();
+                    }else {
+                        this.compareResult[tableName] = true;
+                        console.log("compare successful ")
                     }
-                    this.compareResult[tableName] = true;
-                    console.log("compare successful ")
+
                     resolve();
 
                 });
