@@ -114,7 +114,9 @@ export const waitNeuronSyncSuccess = async (retries: number) => {
 
 export const stopNeuron = async () => {
     console.log("stop neuron")
-    await findAndKillProcessOnPort(5858)
+    if (neuron){
+        await findAndKillProcessOnPort(5858)
+    }
     return new Promise<void>(resolve => {
         if (neuron) {
             console.info('neuron:\tkilling neuron')

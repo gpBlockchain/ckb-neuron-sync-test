@@ -39,7 +39,7 @@ const tx_lock_options: ComparisonOptions = {
 
 const indexer_tx_hash_cache_options: ComparisonOptions = {
     fileName: "indexer_tx_hash_cache_result.md",
-    excludedFields: ['createdAt', 'updatedAt'],
+    excludedFields: ['id','createdAt', 'updatedAt'],
     tableToCompare: 'indexer_tx_hash_cache',
 }
 
