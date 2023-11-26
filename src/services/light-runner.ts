@@ -1,6 +1,6 @@
 import {ChildProcess, spawn} from "child_process";
-import {platform} from "../utils/utils";
-import {cpSync, mkdirSync, rmSync} from "node:fs";
+import {platform, rm} from "../utils/utils";
+import {cpSync,  mkdirSync} from "node:fs";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -66,5 +66,5 @@ export const stopLightCkbNode = async () => {
 
 export const cleanLightCkbNode = async (path: string) => {
     console.log("clean ckb light node env:", path)
-    rmSync(path, {recursive: true, force: true})
+    rm(path)
 }

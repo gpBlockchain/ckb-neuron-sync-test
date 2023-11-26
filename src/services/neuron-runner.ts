@@ -1,7 +1,7 @@
 import * as os from "os";
-import {platform, retry, timeout} from "../utils/utils";
+import {platform, retry, rm} from "../utils/utils";
 import * as path from "path";
-import {cpSync, rmSync} from "node:fs";
+import {cpSync} from "node:fs";
 import {ChildProcess, exec,spawn} from "child_process";
 import * as  fs from "fs";
 import {DEV_TIP_NUMBER} from "../config/constant";
@@ -50,7 +50,7 @@ export const startNeuronWithConfig = async (option: {
     cpSync(option.envPath, path.join(option.neuronCodePath, ...["packages", "neuron-wallet", ".env"]))
 
     // cp network file
-    let decPath = path.join(getNeuronPath(), ...["dev", "networks", "index.json"])
+    let decPath = path.join(getNeuronPath(), ...["test", "networks", "index.json"])
     cpSync(option.network.indexJsonPath, decPath)
 
     if (option.network.selectNetwork !== undefined) {
@@ -58,22 +58,21 @@ export const startNeuronWithConfig = async (option: {
         changeNetworkByName(option.network.selectNetwork)
     }
     // cp wallet file
-    cpSync(option.wallets.walletsPath, path.join(getNeuronPath(), ...["dev", "wallets"]), {recursive: true})
+    cpSync(option.wallets.walletsPath, path.join(getNeuronPath(), ...["test", "wallets"]), {recursive: true})
 
     if (option.wallets.selectWallet !== undefined) {
         changeWalletByName(option.wallets.selectWallet)
     }
-    let log = fs.createWriteStream(option.logPath)
 
     // start
     const options = ['start:wallet']
     neuron = spawn("yarn", options, {
         cwd: option.neuronCodePath,
         stdio: ['ignore', 'pipe', 'pipe'],
-        // env:{NODE_ENV:undefined},
         // detached: true,
         shell: true,
     })
+    let log = fs.createWriteStream(option.logPath)
     neuron.stderr && neuron.stderr.on('data', data => {
         log.write(data)
     })
@@ -140,17 +139,12 @@ function changeWalletByName(selectWallet: string) {
 }
 
 export const cleanNeuronSyncCells = () => {
-    rmSync(path.join(getNeuronPath(), ...["dev", "cells"]), {
-        force: true,
-        recursive: true
-    })
+    rm(path.join(getNeuronPath(), ...["test", "cells"]))
 }
 
 
 export const backupNeuronCells = (decPath: string) => {
-    let path1 = path.join(getNeuronPath(), ...["dev", "cells"])
-    console.log(path1)
-    cpSync(path.join(getNeuronPath(), ...["dev", "cells"]), decPath, {recursive: true})
+    cpSync(path.join(getNeuronPath(), ...["test", "cells"]), decPath, {recursive: true})
 }
 
 export function asyncSleep(ms: number): Promise<void> {
