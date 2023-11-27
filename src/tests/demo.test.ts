@@ -1,6 +1,7 @@
 import {cleanCkbNode, startCkbMiner, startCkbNodeWithData, stopCkbNode} from "../services/ckb-runner";
 import {cleanLightCkbNode, startCkbLightNodeWithConfig, stopLightCkbNode} from "../services/light-runner";
 import {
+    asyncSleep,
     backupNeuronCells,
     startNeuronWithConfig, stopNeuron, waitNeuronSyncSuccess,
 } from "../services/neuron-runner";
@@ -18,6 +19,7 @@ import {compareNeuronDatabase} from "../services/neuron-sql-server";
 describe('demo', function () {
 
     afterEach(async () => {
+        console.log('after each')
         await stopCkbNode()
         await cleanCkbNode("tmp/ckb")
         await stopLightCkbNode()

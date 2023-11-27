@@ -6,7 +6,7 @@
   "scripts": {
     "start:node": "",
     "start:neuron": "",
-    "test": "jest demo.test.ts --detectOpenHandles"
+    "test": "jest demo.test.ts"
   },
   "dependencies": {
     "@ckb-lumos/lumos": "^0.20.0",
