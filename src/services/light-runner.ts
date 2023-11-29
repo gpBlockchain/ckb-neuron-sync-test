@@ -38,9 +38,9 @@ export const startCkbLightNodeWithConfig = async (option: {
         cwd:option.decPath,
         env: {RUST_LOG: 'info', ckb_light_client: 'info'},
     })
-    let logPath = path.join(option.decPath, "light.log")
+    // let logPath = path.join(option.decPath, "light.log")
+    let logPath = "tmp/light.log"
     let log = fs.createWriteStream(logPath)
-
     ckbLight.stderr && ckbLight.stderr.on('data', data => {
         log.write(data)
     })
