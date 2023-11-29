@@ -8,6 +8,7 @@ notice:will remove your neuron test data
 - mac
 ```shell
 bash prepare.sh mac
+bash run_neuron_ui.sh
 npm i 
 npm run test 
 ```

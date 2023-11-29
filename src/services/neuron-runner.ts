@@ -1,26 +1,32 @@
 import * as os from "os";
-import {platform, retry, timeout} from "../utils/utils";
+import {platform, rm} from "../utils/utils";
 import * as path from "path";
-import {cpSync, rmSync} from "node:fs";
-import {ChildProcess, exec,spawn} from "child_process";
+import {cpSync} from "node:fs";
+import {ChildProcess, exec, spawn} from "child_process";
 import * as  fs from "fs";
 import {DEV_TIP_NUMBER} from "../config/constant";
 
 
 let neuron: ChildProcess | null = null
 
-let syncResult: boolean
+let syncResult: {
+    result: boolean;
+    syncTipNumTimes: number;
+} = {
+    result: false,
+    syncTipNumTimes: 0
+}
 
 export const getNeuronPath = () => {
     switch (platform()) {
         case 'win':
             //C:\Users\linguopeng_112963420\AppData\Roaming\Neuron
-            return path.join(os.homedir(),...['AppData','Roaming','Neuron'])
+            return path.join(os.homedir(), ...['AppData', 'Roaming', 'Neuron'])
         case 'mac':
             //todo check intel
             return path.join(os.homedir(), ...["Library", "Application Support", "Neuron"])
         case 'linux':
-            return path.join(os.homedir(),...['.config','Neuron'])
+            return path.join(os.homedir(), ...['.config', 'Neuron'])
         default:
             throw new Error("not support ")
     }
@@ -40,7 +46,7 @@ export const startNeuronWithConfig = async (option: {
     logPath: string
     neuronCodePath: string
 }) => {
-    syncResult = false;
+    syncResult = {result: false, syncTipNumTimes: 0};
     console.log("start neuron")
 
     if (option.cleanCells) {
@@ -50,7 +56,7 @@ export const startNeuronWithConfig = async (option: {
     cpSync(option.envPath, path.join(option.neuronCodePath, ...["packages", "neuron-wallet", ".env"]))
 
     // cp network file
-    let decPath = path.join(getNeuronPath(), ...["test", "networks", "index.json"])
+    let decPath = path.join(getNeuronPath(), ...["dev", "networks", "index.json"])
     cpSync(option.network.indexJsonPath, decPath)
 
     if (option.network.selectNetwork !== undefined) {
@@ -58,7 +64,7 @@ export const startNeuronWithConfig = async (option: {
         changeNetworkByName(option.network.selectNetwork)
     }
     // cp wallet file
-    cpSync(option.wallets.walletsPath, path.join(getNeuronPath(), ...["test", "wallets"]), {recursive: true})
+    cpSync(option.wallets.walletsPath, path.join(getNeuronPath(), ...["dev", "wallets"]), {recursive: true})
 
     if (option.wallets.selectWallet !== undefined) {
         changeWalletByName(option.wallets.selectWallet)
@@ -77,8 +83,14 @@ export const startNeuronWithConfig = async (option: {
         log.write(data)
     })
     neuron.stdout && neuron.stdout.on('data', data => {
-        if (!syncResult && data.toString().includes("saved synced block")) {
-            syncResult = checkLogForNumber(data.toString())
+        if (!syncResult.result && data.toString().includes("saved synced block")) {
+            let result = checkLogForNumber(data.toString())
+            if (result) {
+                syncResult.syncTipNumTimes += 1;
+            }
+            if (syncResult.syncTipNumTimes >= 2) {
+                syncResult.result = true;
+            }
         }
         log.write(data)
     })
@@ -93,28 +105,26 @@ function checkLogForNumber(log: string): boolean {
         console.log(`neuron sync:${number}`)
         return number > DEV_TIP_NUMBER; // 检查数字是否大于 20000
     }
-
     return false; // 如果没有找到匹配的数字，则返回 false
 }
 
 export const waitNeuronSyncSuccess = async (retries: number) => {
-    await retry(
-        () => {
-            if (!syncResult) return Promise.reject("waitNeuronSyncSuccess time out ");
-            return syncResult;
-        }, {
-            timeout: retries * 1000,
-            delay: 1000,
-            retries: retries,
-        }
-    );
 
+    for (let i = 0; i < retries; i++) {
+        if (syncResult.result) {
+            return syncResult.result
+        }
+        await asyncSleep(1000)
+    }
+    return Promise.reject("waitNeuronSyncSuccess time out ");
 }
 
 
 export const stopNeuron = async () => {
     console.log("stop neuron")
-    await findAndKillProcessOnPort(5858)
+    if (neuron) {
+        await findAndKillProcessOnPort(5858)
+    }
     return new Promise<void>(resolve => {
         if (neuron) {
             console.info('neuron:\tkilling neuron')
@@ -123,7 +133,10 @@ export const stopNeuron = async () => {
             neuron.kill()
             console.log("neuron: stop succ")
             neuron = null
-            syncResult = false
+            syncResult = {
+                syncTipNumTimes: 0,
+                result: false
+            }
         } else {
             resolve()
         }
@@ -139,15 +152,12 @@ function changeWalletByName(selectWallet: string) {
 }
 
 export const cleanNeuronSyncCells = () => {
-    rmSync(path.join(getNeuronPath(), ...["test", "cells"]), {
-        force: true,
-        recursive: true
-    })
+    rm(path.join(getNeuronPath(), ...["dev", "cells"]))
 }
 
 
 export const backupNeuronCells = (decPath: string) => {
-    cpSync(path.join(getNeuronPath(), ...["test", "cells"]), decPath, {recursive: true})
+    cpSync(path.join(getNeuronPath(), ...["dev", "cells"]), decPath, {recursive: true})
 }
 
 export function asyncSleep(ms: number): Promise<void> {
@@ -195,7 +205,6 @@ function killWindowsProcessByPort(port: number): void {
 }
 
 function killWindowsProcessByID(pid: string): void {
-    // 使用 taskkill 终止指定 PID 的进程
     const cmd = `taskkill /F /PID ${pid}`;
     exec(cmd, (error, stdout, stderr) => {
         if (error) {

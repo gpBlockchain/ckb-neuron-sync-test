@@ -13,13 +13,14 @@ export const exportToCSVFiles = async (option: {
     //connect
     const db = new sqlite3.Database(option.sqlPath); // 替换为你的 SQLite 数据库文件路径
     let tableNames = await getAllTableNames(db)
-    tableNames.forEach( (tableName)=>{
+    tableNames.forEach((tableName) => {
         console.log(tableName)
-        exportToCSV(db,tableName,path.join(option.descPath,`${tableName}.csv`))
+        exportToCSV(db, tableName, path.join(option.descPath, `${tableName}.csv`))
         console.log(`${tableName} succ`)
     })
 }
-async function getAllTableNames(db:sqlite3.Database):Promise<string[]> {
+
+async function getAllTableNames(db: sqlite3.Database): Promise<string[]> {
     // return new Promise<string[]>((resolve, reject) => {
     //     db.all("SELECT name FROM sqlite_master WHERE type='table'", (err, rows) => {
     //         if (err) {
@@ -58,9 +59,10 @@ async function getAllTableNames(db:sqlite3.Database):Promise<string[]> {
 
 }
 
-function exportToCSV(db:sqlite3.Database,tableName:string,csvFilePath:string) {
+function exportToCSV(db: sqlite3.Database, tableName: string, csvFilePath: string) {
     // const csvFilePath = 'output.csv'; // 输出 CSV 文件路径和名称
-    const query = `SELECT * FROM ${tableName}`;
+    const query = `SELECT *
+                   FROM [${tableName}]`;
     db.all(query, (err, rows) => {
         if (err) {
             console.error('Error:', err);
@@ -105,7 +107,8 @@ export async function queryDatabase(dbPath: string, tableName: string, columnNam
         const db = new sqlite3.Database(dbPath);
 
         // 编写 SQL 查询语句
-        const sql = `SELECT ${columnName} FROM ${tableName}`;
+        const sql = `SELECT ${columnName}
+                     FROM ${tableName}`;
 
         // 执行查询
         db.all(sql, [], (err, rows: TableRow[]) => {
@@ -204,7 +207,7 @@ export async function compareDatabases(dbPath1: string, dbPath2: string): Promis
 
         // 比较两个数据库中每个表的字段是否一致
         const commonTables = tables1.filter((table1) => tables2.some((t) => t.tableName === table1.tableName));
-
+        let idx = 0;
         await Promise.all(commonTables.map(async (table1) => {
             const table2 = tables2.find((t) => t.tableName === table1.tableName);
 
@@ -213,7 +216,8 @@ export async function compareDatabases(dbPath1: string, dbPath2: string): Promis
                     const columnName = `${table1.tableName}.${column.name}`;
                     const value1 = await getTableColumnValue(dbPath1, table1.tableName, column.name);
                     const value2 = await getTableColumnValue(dbPath2, table1.tableName, column.name);
-
+                    idx++;
+                    console.log(`idx:${idx} value1:${value1},value2:${value2}`)
                     let isDifferent: string | boolean = value1 !== value2;
 
                     // 特殊处理的列名
@@ -245,19 +249,19 @@ export async function compareDatabases(dbPath1: string, dbPath2: string): Promis
 }
 
 
-
-
 async function getTableColumnValue(dbPath: string, tableName: string, columnName: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
         const db = new sqlite3.Database(dbPath);
 
-        const sql = `SELECT "${columnName}" FROM "${tableName}" LIMIT 1`;
+        const sql = `SELECT "${columnName}"
+                     FROM "${tableName}"`;
         db.get(sql, [], (err, row: any) => {
             db.close();
             if (err) {
                 reject(err);
             } else {
-                resolve(row ? row[columnName] : 'NULL');const value = row ? row[columnName] : null;
+                resolve(row ? row[columnName] : 'NULL');
+                const value = row ? row[columnName] : null;
                 resolve(value !== undefined ? value : 'NULL');
             }
         });

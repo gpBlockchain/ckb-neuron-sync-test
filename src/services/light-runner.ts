@@ -1,6 +1,6 @@
 import {ChildProcess, spawn} from "child_process";
-import {platform} from "../utils/utils";
-import {cpSync, mkdirSync, rmSync} from "node:fs";
+import {platform, rm} from "../utils/utils";
+import {cpSync,  mkdirSync} from "node:fs";
 import * as path from "path";
 import * as fs from "fs";
 
@@ -38,9 +38,9 @@ export const startCkbLightNodeWithConfig = async (option: {
         cwd:option.decPath,
         env: {RUST_LOG: 'info', ckb_light_client: 'info'},
     })
-    let logPath = path.join(option.decPath, "light.log")
+    // let logPath = path.join(option.decPath, "light.log")
+    let logPath = "tmp/light.log"
     let log = fs.createWriteStream(logPath)
-
     ckbLight.stderr && ckbLight.stderr.on('data', data => {
         log.write(data)
     })
@@ -66,5 +66,5 @@ export const stopLightCkbNode = async () => {
 
 export const cleanLightCkbNode = async (path: string) => {
     console.log("clean ckb light node env:", path)
-    rmSync(path, {recursive: true, force: true})
+    rm(path)
 }

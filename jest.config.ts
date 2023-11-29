@@ -1,5 +1,11 @@
 import { JestConfigWithTsJest } from 'ts-jest';
 
+
+// jest set NODE_ENV === test
+// will make neuron run in test mode, can‘t read local:3000 data
+// so should make neuron run in dev mode
+process.env = Object.assign(process.env, { NODE_ENV: undefined });
+
 const config: JestConfigWithTsJest = {
     verbose: true,
     transform: {
@@ -20,7 +26,7 @@ const config: JestConfigWithTsJest = {
     //         "pageTitle": "Test Report"
     //     }]
     // ],
-    testTimeout:1000000,
+    testTimeout:4000000,
 };
 
 export default config;

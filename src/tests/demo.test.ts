@@ -1,27 +1,33 @@
 import {cleanCkbNode, startCkbMiner, startCkbNodeWithData, stopCkbNode} from "../services/ckb-runner";
 import {cleanLightCkbNode, startCkbLightNodeWithConfig, stopLightCkbNode} from "../services/light-runner";
 import {
+    asyncSleep,
     backupNeuronCells,
     startNeuronWithConfig, stopNeuron, waitNeuronSyncSuccess,
 } from "../services/neuron-runner";
-import {compareDatabases} from "../services/sqlite3-server";
-import {FULLNODE_DEFAULT_DBPATH, FULLNODE_INIT_DBPATH, LIGTHNODE_INIT_DBPATH, LIGTHNODE_DEFAULT_DBPATH} from "../config/constant";
-import * as fs from "fs";
-
+import {
+    FULLNODE_DEFAULT_DBPATH,
+    FULLNODE_INIT_DBPATH,
+    LIGTHNODE_INIT_DBPATH,
+    LIGTHNODE_DEFAULT_DBPATH
+} from "../config/constant";
+import {compareNeuronDatabase} from "../services/neuron-sql-server";
 
 
 describe('demo', function () {
 
     afterEach(async () => {
+        console.log('after each')
         await stopCkbNode()
-        await cleanCkbNode("tmp/ckb")
         await stopLightCkbNode()
+        await asyncSleep(3 * 1000)
+        await cleanCkbNode("tmp/ckb")
         await cleanLightCkbNode("tmp/ckb-light-client")
         await stopNeuron()
         console.log("clean data successful")
     })
 
-    beforeEach(async ()=>{
+    beforeEach(async () => {
         console.log("before each")
         await startCkbNodeWithData({
             binPath: "source/bin",
@@ -54,26 +60,14 @@ describe('demo', function () {
         console.log("wait sync ")
         // let beginTime = now()
         await waitNeuronSyncSuccess(30 * 60)
-        // await asyncSleep(1000*10)
+        await stopNeuron()
         // let endTime = now()
         // console.log(`sync succ:${endTime - beginTime}`)
         console.log("back log")
         await backupNeuronCells("tmp/fullNode/wallet1")
-        try {
-            const result = await compareDatabases(FULLNODE_DEFAULT_DBPATH , FULLNODE_INIT_DBPATH);
-            console.log(`Neuron On FullNode Compare Result: \n${result}`);
-            if (result && result.includes('\x1b[31mTRUE\x1b[39m')) {
-                const csvFileName = await writeResultToCSV(result);
-                console.error('Assertion failed: Databases are different.');
-                console.error(`Comparison result written to CSV file: ${csvFileName}`);
-                process.exit(1);
-            } else {
-                console.log('Assertion passed: Databases are the same.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            process.exit(1);
-        }
+        let result = await compareNeuronDatabase(FULLNODE_INIT_DBPATH, FULLNODE_DEFAULT_DBPATH, "tmp/fullNode/wallet1")
+        expect(result).toEqual(true)
+
     })
 
     it("light node sync  wallet 1", async () => {
@@ -89,32 +83,14 @@ describe('demo', function () {
             logPath: "tmp/neuron-light-node-wallet-1.log"
         })
         console.log("wait sync ")
-        await waitNeuronSyncSuccess(30 * 60)
-        // await asyncSleep(1000*10)
-        console.log("back log ")
+        await waitNeuronSyncSuccess(60 * 60)
+        await stopNeuron()
+        console.log("back log")
         await backupNeuronCells("tmp/lightNode/wallet1")
-        try {
-            const result = await compareDatabases(LIGTHNODE_INIT_DBPATH, LIGTHNODE_DEFAULT_DBPATH);
-            console.log(`Neuron On LightNode Compare Result: \n${result}`);
-            if (result && result.includes('\x1b[31mTRUE\x1b[39m')) {
-                const csvFileName = await writeResultToCSV(result);
-                console.error('Assertion failed: Databases are different.');
-                console.error(`Comparison result written to CSV file: ${csvFileName}`);
-                process.exit(1);
-            } else {
-                console.log('Assertion passed: Databases are the same.');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            process.exit(1);
-        }
+        console.log("finished")
+        const result = await compareNeuronDatabase(LIGTHNODE_INIT_DBPATH, LIGTHNODE_DEFAULT_DBPATH, "tmp/lightNode/wallet1");
+        expect(result).toEqual(true)
+        console.log("compare finished")
     })
 
-
 });
-
-async function writeResultToCSV(result: string): Promise<string> {
-    const csvFileName = 'tmp/comparison_result.csv';
-    await fs.promises.writeFile(csvFileName, result);
-    return csvFileName;
-}

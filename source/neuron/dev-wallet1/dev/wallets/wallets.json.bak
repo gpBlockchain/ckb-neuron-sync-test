@@ -1,0 +1,18 @@
+{
+  "wallets": [
+    {
+      "id": "c114f8e1-141f-49b1-937f-db0ab50faee5",
+      "name": "Wallet 233",
+      "extendedKey": "03620ce1a683278c0b3c0a18c90920eef22ddea14ffa3dfa03c3cf186498bce9ae31e660a979fb6dff2be24b2c1d3bfda7abe7b3c5e31aba96e3b5a394db008be2",
+      "isHD": true,
+      "startBlockNumber": "0x0"
+    },
+//    {
+//      "id": "931ce752-f5c5-48b9-8a6c-b72385f04604",
+//      "name": "Wallet 2",
+//      "extendedKey": "030a0a704b341850b0ed5bdbd15c3b10a106175e8a2c4493a00d76b6e51f0193b4424ef2b107c8d5f5410b6352307ce10a4bfaea6fbc998c0007ae23b23a747671",
+//      "isHD": true
+//    }
+  ],
+  "current": "c114f8e1-141f-49b1-937f-db0ab50faee5"
+}
