@@ -9,7 +9,13 @@ import {DEV_TIP_NUMBER} from "../config/constant";
 
 let neuron: ChildProcess | null = null
 
-let syncResult: boolean
+let syncResult: {
+    result: boolean;
+    syncTipNumTimes: number;
+} = {
+    result: false,
+    syncTipNumTimes: 0
+}
 
 export const getNeuronPath = () => {
     switch (platform()) {
@@ -40,7 +46,7 @@ export const startNeuronWithConfig = async (option: {
     logPath: string
     neuronCodePath: string
 }) => {
-    syncResult = false;
+    syncResult = {result: false, syncTipNumTimes: 0};
     console.log("start neuron")
 
     if (option.cleanCells) {
@@ -77,8 +83,14 @@ export const startNeuronWithConfig = async (option: {
         log.write(data)
     })
     neuron.stdout && neuron.stdout.on('data', data => {
-        if (!syncResult && data.toString().includes("saved synced block")) {
-            syncResult = checkLogForNumber(data.toString())
+        if (!syncResult.result && data.toString().includes("saved synced block")) {
+            let result = checkLogForNumber(data.toString())
+            if (result) {
+                syncResult.syncTipNumTimes += 1;
+            }
+            if (syncResult.syncTipNumTimes >= 2) {
+                syncResult.result = true;
+            }
         }
         log.write(data)
     })
@@ -99,8 +111,8 @@ function checkLogForNumber(log: string): boolean {
 export const waitNeuronSyncSuccess = async (retries: number) => {
 
     for (let i = 0; i < retries; i++) {
-        if (syncResult) {
-            return syncResult
+        if (syncResult.result) {
+            return syncResult.result
         }
         await asyncSleep(1000)
     }
@@ -121,7 +133,10 @@ export const stopNeuron = async () => {
             neuron.kill()
             console.log("neuron: stop succ")
             neuron = null
-            syncResult = false
+            syncResult = {
+                syncTipNumTimes: 0,
+                result: false
+            }
         } else {
             resolve()
         }
