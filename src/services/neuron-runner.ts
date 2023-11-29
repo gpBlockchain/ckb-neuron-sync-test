@@ -140,9 +140,11 @@ export const stopNeuron = async () => {
             neuron = null
             syncResult = {
                 syncTipNumTimes: 0,
+
                 result: false,
                 tipNum:DEV_TIP_NUMBER
             }
+          
         } else {
             resolve()
         }
