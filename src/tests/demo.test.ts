@@ -19,8 +19,9 @@ describe('demo', function () {
     afterEach(async () => {
         console.log('after each')
         await stopCkbNode()
-        await cleanCkbNode("tmp/ckb")
         await stopLightCkbNode()
+        await asyncSleep(3 * 1000)
+        await cleanCkbNode("tmp/ckb")
         await cleanLightCkbNode("tmp/ckb-light-client")
         await stopNeuron()
         console.log("clean data successful")
