@@ -1,4 +1,4 @@
-import {ComparisonOptions, SQLiteDataComparator} from "./SQLiteDataComparator";
+import {ComparisonOptions, SqliteDataComparator} from "./sqlite-data-comparator";
 
 const transaction_options: ComparisonOptions = {
     fileName: "transaction_result.md",
@@ -44,23 +44,29 @@ const indexer_tx_hash_cache_options: ComparisonOptions = {
 }
 
 export const compareNeuronDatabase = async (database1Path: string, database2Path: string, resultSavePath: string) => {
+    let comparator = new SqliteDataComparator(database1Path, database2Path);
 
-    let comparator = new SQLiteDataComparator(database1Path, database2Path);
-    let compare_tables = [
-        transaction_options,
-        asset_account_options,
-        hd_public_key_info_options,
-        indexer_tx_hash_cache_options,
-        input_options,
-        output_options,
-        sudt_token_info_options,
-        tx_lock_options
-    ]
-    for (let i = 0; i < compare_tables.length; i++) {
-        let table = compare_tables[i]
-        await comparator.compare(table, resultSavePath);
+    try {
+        let compare_tables = [
+            transaction_options,
+            asset_account_options,
+            hd_public_key_info_options,
+            indexer_tx_hash_cache_options,
+            input_options,
+            output_options,
+            sudt_token_info_options,
+            tx_lock_options
+        ]
+        for (let i = 0; i < compare_tables.length; i++) {
+            let table = compare_tables[i]
+            await comparator.compare(table, resultSavePath);
+        }
+        console.table(comparator.compareResult)
+    }catch (e){
+        console.error(e)
+        return false;
+    }finally {
+        comparator.close()
     }
-    console.table(comparator.compareResult)
-    comparator.close()
     return comparator.compareResult.result;
 }

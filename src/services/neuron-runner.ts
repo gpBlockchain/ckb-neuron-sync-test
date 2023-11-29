@@ -1,8 +1,8 @@
 import * as os from "os";
-import {platform, retry, rm} from "../utils/utils";
+import {platform, rm} from "../utils/utils";
 import * as path from "path";
 import {cpSync} from "node:fs";
-import {ChildProcess, exec,spawn} from "child_process";
+import {ChildProcess, exec, spawn} from "child_process";
 import * as  fs from "fs";
 import {DEV_TIP_NUMBER} from "../config/constant";
 
@@ -15,12 +15,12 @@ export const getNeuronPath = () => {
     switch (platform()) {
         case 'win':
             //C:\Users\linguopeng_112963420\AppData\Roaming\Neuron
-            return path.join(os.homedir(),...['AppData','Roaming','Neuron'])
+            return path.join(os.homedir(), ...['AppData', 'Roaming', 'Neuron'])
         case 'mac':
             //todo check intel
             return path.join(os.homedir(), ...["Library", "Application Support", "Neuron"])
         case 'linux':
-            return path.join(os.homedir(),...['.config','Neuron'])
+            return path.join(os.homedir(), ...['.config', 'Neuron'])
         default:
             throw new Error("not support ")
     }
@@ -93,28 +93,24 @@ function checkLogForNumber(log: string): boolean {
         console.log(`neuron sync:${number}`)
         return number > DEV_TIP_NUMBER; // 检查数字是否大于 20000
     }
-
     return false; // 如果没有找到匹配的数字，则返回 false
 }
 
 export const waitNeuronSyncSuccess = async (retries: number) => {
-    await retry(
-        () => {
-            if (!syncResult) return Promise.reject("waitNeuronSyncSuccess time out ");
-            return syncResult;
-        }, {
-            timeout: retries * 1000,
-            delay: 1000,
-            retries: retries,
-        }
-    );
 
+    for (let i = 0; i < retries; i++) {
+        if (syncResult) {
+            return syncResult
+        }
+        await asyncSleep(1000)
+    }
+    return Promise.reject("waitNeuronSyncSuccess time out ");
 }
 
 
 export const stopNeuron = async () => {
     console.log("stop neuron")
-    if (neuron){
+    if (neuron) {
         await findAndKillProcessOnPort(5858)
     }
     return new Promise<void>(resolve => {
@@ -194,7 +190,6 @@ function killWindowsProcessByPort(port: number): void {
 }
 
 function killWindowsProcessByID(pid: string): void {
-    // 使用 taskkill 终止指定 PID 的进程
     const cmd = `taskkill /F /PID ${pid}`;
     exec(cmd, (error, stdout, stderr) => {
         if (error) {

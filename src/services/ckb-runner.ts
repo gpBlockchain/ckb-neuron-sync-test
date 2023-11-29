@@ -46,8 +46,8 @@ export const startCkbNodeWithData = async (option: {
     const options = ['run', '-C', option.decPath, '--indexer']
     const stdio: (StdioNull | StdioPipe)[] = ['ignore', 'ignore', 'pipe']
     ckb = spawn(ckbBinary(option.binPath), options, {stdio})
+    let ckbRpc = new RPC(CKB_RPC_URL);
 
-    const ckbRpc = new RPC(CKB_RPC_URL);
     const tipBlock = await retry(
         () =>
             ckbRpc.getTipBlockNumber().then((res) => {
@@ -55,12 +55,11 @@ export const startCkbNodeWithData = async (option: {
                 return res;
             }),
         {
-            timeout: 30_000,
+            timeout: 5_000,
             delay: 100,
             retries: 100,
         }
     );
-
     console.info("CKB started", BI.from(tipBlock).toNumber());
 }
 
@@ -84,25 +83,36 @@ export const startCkbMiner = (option: {
 
 export const stopCkbNode = async (ckb_port: number = 8114) => {
     console.log("stop ckb node ")
+    const promises: Promise<void>[] = [];
+    promises.push(
+        new Promise<void>((innerResolve) => {
+            if (!ckbMiner) {
+                innerResolve();
+            } else {
+                ckbMiner.once('close', () => innerResolve());
+                ckbMiner.kill();
+                ckbMiner = null;
+            }
+        })
+    );
+    promises.push(
+        new Promise<void>((innerResolve) => {
+            if (ckb) {
+                console.info('CKB:\tkilling node')
+                ckb.once('close', () => innerResolve())
+                ckb.kill()
+                ckb = null
+            } else {
+                innerResolve()
+            }
+        })
+    );
     return new Promise<void>(resolve => {
-        if(ckbMiner){
-            console.info('CKB miner :\tkilling ')
-            ckbMiner.once('close', () => resolve())
-            ckbMiner.kill()
-            ckbMiner = null
-        }
-        if (ckb) {
-            console.info('CKB:\tkilling node')
-            ckb.once('close', () => resolve())
-            ckb.kill()
-            ckb = null
-        } else {
-            resolve()
-        }
+        Promise.all(promises).then(() => resolve());
     })
 }
 
 export const cleanCkbNode = async (decPath: string) => {
-    console.log("clean ckb node env:",decPath)
+    console.log("clean ckb node env:", decPath)
     rm(decPath)
 }

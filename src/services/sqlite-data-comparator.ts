@@ -17,7 +17,7 @@ interface CompareResult {
     [key: string]: boolean;
 }
 
-export class SQLiteDataComparator {
+export class SqliteDataComparator {
     private db1: sqlite3.Database;
     private db2: sqlite3.Database;
     public compareResult: CompareResult;

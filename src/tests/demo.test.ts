@@ -1,18 +1,15 @@
 import {cleanCkbNode, startCkbMiner, startCkbNodeWithData, stopCkbNode} from "../services/ckb-runner";
 import {cleanLightCkbNode, startCkbLightNodeWithConfig, stopLightCkbNode} from "../services/light-runner";
 import {
-    asyncSleep,
     backupNeuronCells,
     startNeuronWithConfig, stopNeuron, waitNeuronSyncSuccess,
 } from "../services/neuron-runner";
-import {compareDatabases} from "../services/sqlite3-server";
 import {
     FULLNODE_DEFAULT_DBPATH,
     FULLNODE_INIT_DBPATH,
     LIGTHNODE_INIT_DBPATH,
     LIGTHNODE_DEFAULT_DBPATH
 } from "../config/constant";
-import * as fs from "fs";
 import {compareNeuronDatabase} from "../services/neuron-sql-server";
 
 
@@ -85,7 +82,6 @@ describe('demo', function () {
         })
         console.log("wait sync ")
         await waitNeuronSyncSuccess(60 * 60)
-        // await asyncSleep(1000*10)
         await stopNeuron()
         console.log("back log")
         await backupNeuronCells("tmp/lightNode/wallet1")
