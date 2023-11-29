@@ -1,6 +1,7 @@
 import {cleanCkbNode, startCkbMiner, startCkbNodeWithData, stopCkbNode} from "../services/ckb-runner";
 import {cleanLightCkbNode, startCkbLightNodeWithConfig, stopLightCkbNode} from "../services/light-runner";
 import {
+    asyncSleep,
     backupNeuronCells,
     startNeuronWithConfig, stopNeuron, waitNeuronSyncSuccess,
 } from "../services/neuron-runner";
@@ -82,6 +83,7 @@ describe('demo', function () {
         })
         console.log("wait sync ")
         await waitNeuronSyncSuccess(60 * 60)
+        await asyncSleep(60 * 1000)
         await stopNeuron()
         console.log("back log")
         await backupNeuronCells("tmp/lightNode/wallet1")
