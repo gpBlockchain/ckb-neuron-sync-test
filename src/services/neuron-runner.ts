@@ -12,9 +12,11 @@ let neuron: ChildProcess | null = null
 let syncResult: {
     result: boolean;
     syncTipNumTimes: number;
+    tipNum:number;
 } = {
     result: false,
-    syncTipNumTimes: 0
+    syncTipNumTimes: 0,
+    tipNum:DEV_TIP_NUMBER
 }
 
 export const getNeuronPath = () => {
@@ -46,7 +48,7 @@ export const startNeuronWithConfig = async (option: {
     logPath: string
     neuronCodePath: string
 }) => {
-    syncResult = {result: false, syncTipNumTimes: 0};
+    syncResult = {result: false, syncTipNumTimes: 0,tipNum:DEV_TIP_NUMBER};
     console.log("start neuron")
 
     if (option.cleanCells) {
@@ -103,7 +105,10 @@ function checkLogForNumber(log: string): boolean {
     if (match) {
         const number = parseInt(match[1], 10); // 获取匹配到的数字部分
         console.log(`neuron sync:${number}`)
-        return number > DEV_TIP_NUMBER; // 检查数字是否大于 20000
+        if(number > syncResult.tipNum){
+            syncResult.tipNum = number;
+            return true;
+        }
     }
     return false; // 如果没有找到匹配的数字，则返回 false
 }
@@ -135,8 +140,11 @@ export const stopNeuron = async () => {
             neuron = null
             syncResult = {
                 syncTipNumTimes: 0,
-                result: false
+
+                result: false,
+                tipNum:DEV_TIP_NUMBER
             }
+          
         } else {
             resolve()
         }
