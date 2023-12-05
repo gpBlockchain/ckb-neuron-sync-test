@@ -12,3 +12,4 @@ bash run_neuron_ui.sh
 npm i 
 npm run test 
 ```
+
