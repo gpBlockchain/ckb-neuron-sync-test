@@ -12,11 +12,11 @@ let neuron: ChildProcess | null = null
 let syncResult: {
     result: boolean;
     syncTipNumTimes: number;
-    tipNum:number;
+    tipNum: number;
 } = {
     result: false,
     syncTipNumTimes: 0,
-    tipNum:DEV_TIP_NUMBER
+    tipNum: DEV_TIP_NUMBER
 }
 
 export const getNeuronPath = () => {
@@ -34,6 +34,36 @@ export const getNeuronPath = () => {
     }
 }
 
+export const getNeuronEnvPath = () => {
+    switch (platform()) {
+        case 'win':
+            //C:\Users\linguopeng_112963420\AppData\Roaming\Neuron
+            return ["resources", "app", ".env"]
+        case 'mac':
+            return ["Resources", "app", ".env"]
+        case 'linux':
+            return ["resources", "app", ".env"]
+        default:
+            throw new Error("not support ")
+    }
+}
+
+export const getNeuronStartCmd = ()=>{
+
+    switch (platform()) {
+        case 'win':
+            //C:\Users\linguopeng_112963420\AppData\Roaming\Neuron
+            return "./Neuron.exe"
+        case 'mac':
+            return "./Contents/MacOS/neuron"
+        case 'linux':
+            return "./squashfs-root/AppRun"
+        default:
+            throw new Error("not support ")
+    }
+}
+
+
 export const startNeuronWithConfig = async (option: {
     envPath: string,
     network: {
@@ -48,17 +78,17 @@ export const startNeuronWithConfig = async (option: {
     logPath: string
     neuronCodePath: string
 }) => {
-    syncResult = {result: false, syncTipNumTimes: 0,tipNum:DEV_TIP_NUMBER};
+    syncResult = {result: false, syncTipNumTimes: 0, tipNum: DEV_TIP_NUMBER};
     console.log("start neuron")
 
     if (option.cleanCells) {
         cleanNeuronSyncCells()
     }
     // cp env
-    cpSync(option.envPath, path.join(option.neuronCodePath, ...["packages", "neuron-wallet", ".env"]))
+    cpSync(option.envPath, path.join(option.neuronCodePath, ...getNeuronEnvPath()))
 
     // cp network file
-    let decPath = path.join(getNeuronPath(), ...["dev", "networks", "index.json"])
+    let decPath = path.join(getNeuronPath(), ...["networks", "index.json"])
     cpSync(option.network.indexJsonPath, decPath)
 
     if (option.network.selectNetwork !== undefined) {
@@ -66,15 +96,14 @@ export const startNeuronWithConfig = async (option: {
         changeNetworkByName(option.network.selectNetwork)
     }
     // cp wallet file
-    cpSync(option.wallets.walletsPath, path.join(getNeuronPath(), ...["dev", "wallets"]), {recursive: true})
+    cpSync(option.wallets.walletsPath, path.join(getNeuronPath(), ...["wallets"]), {recursive: true})
 
     if (option.wallets.selectWallet !== undefined) {
         changeWalletByName(option.wallets.selectWallet)
     }
 
     // start
-    const options = ['start:wallet']
-    neuron = spawn("yarn", options, {
+    neuron = spawn(getNeuronStartCmd(), {
         cwd: option.neuronCodePath,
         stdio: ['ignore', 'pipe', 'pipe'],
         // detached: true,
@@ -105,7 +134,7 @@ function checkLogForNumber(log: string): boolean {
     if (match) {
         const number = parseInt(match[1], 10); // 获取匹配到的数字部分
         console.log(`neuron sync:${number}`)
-        if(number > syncResult.tipNum){
+        if (number > syncResult.tipNum) {
             syncResult.tipNum = number;
             return true;
         }
@@ -127,9 +156,6 @@ export const waitNeuronSyncSuccess = async (retries: number) => {
 
 export const stopNeuron = async () => {
     console.log("stop neuron")
-    if (neuron) {
-        await findAndKillProcessOnPort(5858)
-    }
     return new Promise<void>(resolve => {
         if (neuron) {
             console.info('neuron:\tkilling neuron')
@@ -141,7 +167,7 @@ export const stopNeuron = async () => {
             syncResult = {
                 syncTipNumTimes: 0,
                 result: false,
-                tipNum:DEV_TIP_NUMBER
+                tipNum: DEV_TIP_NUMBER
             }
         } else {
             resolve()
@@ -158,12 +184,12 @@ function changeWalletByName(selectWallet: string) {
 }
 
 export const cleanNeuronSyncCells = () => {
-    rm(path.join(getNeuronPath(), ...["dev", "cells"]))
+    rm(path.join(getNeuronPath(), ...["cells"]))
 }
 
 
 export const backupNeuronCells = (decPath: string) => {
-    cpSync(path.join(getNeuronPath(), ...["dev", "cells"]), decPath, {recursive: true})
+    cpSync(path.join(getNeuronPath(), ...["cells"]), decPath, {recursive: true})
 }
 
 export function asyncSleep(ms: number): Promise<void> {
