@@ -53,7 +53,7 @@ export const getNeuronStartCmd = ()=>{
     switch (platform()) {
         case 'win':
             //C:\Users\linguopeng_112963420\AppData\Roaming\Neuron
-            return "./Neuron.exe"
+            return ".\\Neuron.exe"
         case 'mac':
             return "./Contents/MacOS/neuron"
         case 'linux':
