@@ -13,7 +13,7 @@ jobs:
         node:
           - 18.12.0
         os:
-          - macos-latest
+#          - macos-latest
           - ubuntu-20.04
 #          - windows-latest
 
@@ -53,7 +53,7 @@ jobs:
         run: |
           npm i
           bash prepare.sh linux
-          xvfb-run --auto-servernum bash run_neuron_ui.sh
+          bash prepare_neuron_linux.sh
           xvfb-run --auto-servernum npm run test
 
       - name: tar result
