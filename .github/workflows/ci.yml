@@ -14,8 +14,8 @@ jobs:
           - 18.12.0
         os:
           - macos-latest
-#          - ubuntu-20.04
-#          - windows-latest
+          - ubuntu-20.04
+          - windows-latest
 
     runs-on: ${{ matrix.os }}
 
@@ -60,10 +60,6 @@ jobs:
         if: always()
         run: |
           tar -zcvf tmp.${{ matrix.os  }}.tar.gz tmp
-
-      - name: Setup upterm session
-        if: always()
-        uses: lhotari/action-upterm@v1
 
       - name: Publish reports
         if: always()
