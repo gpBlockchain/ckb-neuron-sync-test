@@ -40,7 +40,7 @@ export const getNeuronEnvPath = () => {
             //C:\Users\linguopeng_112963420\AppData\Roaming\Neuron
             return ["resources", "app", ".env"]
         case 'mac':
-            return ["Resources", "app", ".env"]
+            return ["Contents","Resources", "app", ".env"]
         case 'linux':
             return ["resources", "app", ".env"]
         default:
