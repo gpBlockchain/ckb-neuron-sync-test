@@ -34,7 +34,7 @@ jobs:
 
       - name: macos run
         if: matrix.os == 'macos-latest'
-        run: | 
+        run: |
           npm i
           bash prepare.sh mac
           bash prepare_neuron_macos.sh
