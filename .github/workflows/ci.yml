@@ -34,10 +34,10 @@ jobs:
 
       - name: macos run
         if: matrix.os == 'macos-latest'
-        run: | 
+        run: |
           npm i
           bash prepare.sh mac
-          bash run_neuron_ui.sh
+          bash prepare_neuron_macos.sh
           npm run test
 
       - name:  Windows run
@@ -45,7 +45,7 @@ jobs:
         run: |
           npm i
           bash prepare.sh win
-          bash run_neuron_ui.sh
+          .\prepare_neuron_windows.bat
           npm run test
 
       - name: ubuntu run
@@ -53,7 +53,7 @@ jobs:
         run: |
           npm i
           bash prepare.sh linux
-          xvfb-run --auto-servernum bash run_neuron_ui.sh
+          bash prepare_neuron_linux.sh
           xvfb-run --auto-servernum npm run test
 
       - name: tar result
